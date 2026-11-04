@@ -56,6 +56,7 @@ import {
 } from "@/utils/errorUtils";
 import { isTextEditableTarget } from "@/utils/domUtils";
 import { deepClone } from "@/utils/deepClone";
+import { resolveManagedAccountId } from "@/lib/authBinding";
 import { isLinux, isMac, isWindows } from "@/lib/platform";
 import {
   APP_STORAGE_KEY,
@@ -97,6 +98,7 @@ import {
   useToolUpdatesAvailable,
 } from "@/components/apps/useToolManagement";
 import { UsagePage } from "@/components/usage/UsagePage";
+import { ScheduledTasksPage } from "@/components/scheduled-tasks/ScheduledTasksPage";
 import { EnvWarningBanner } from "@/components/env/EnvWarningBanner";
 import { SwitchModePanel } from "@/components/providers/mode/SwitchModePanel";
 import { proxyApi } from "@/lib/api/proxy";
@@ -181,6 +183,9 @@ function App() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   // 供应商搜索面板：页头按钮和 ⌘F 都能打开；换应用或离开供应商页就收起
   const [providerSearchOpen, setProviderSearchOpen] = useState(false);
+  const [scheduledTaskAccountId, setScheduledTaskAccountId] = useState<
+    string | null
+  >(null);
   const [connectionStatusSlot, setConnectionStatusSlot] =
     useState<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -1490,6 +1495,15 @@ function App() {
       setConfirmAction({ provider, action: "delete" }),
     onDuplicate: handleDuplicateProvider,
     onConfigureUsage: setUsageProvider,
+    onConfigureScheduledRefresh: (provider: Provider) => {
+      const accountId = resolveManagedAccountId(
+        provider.meta,
+        "codex_oauth",
+      )?.trim();
+      if (!accountId) return;
+      setScheduledTaskAccountId(accountId);
+      openPage("scheduledTasks");
+    },
     onOpenWebsite: handleOpenWebsite,
     onOpenTerminal:
       activeApp === "claude" || activeApp === "codex" || activeApp === "agy"
@@ -1654,6 +1668,19 @@ function App() {
 
   const renderGlobalPage = () => {
     switch (currentView) {
+      case "scheduledTasks":
+        return (
+          <ScheduledTasksPage
+            key={scheduledTaskAccountId ?? "all"}
+            accountId={scheduledTaskAccountId ?? undefined}
+            onBack={() => selectApp(activeApp)}
+            onOpenUsage={() => {
+              setUsageAppFilter("codex");
+              setCurrentView("usage");
+            }}
+            onOpenAuth={() => setCurrentView("auth")}
+          />
+        );
       case "usage":
         return (
           <UsagePage

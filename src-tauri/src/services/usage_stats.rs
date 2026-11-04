@@ -273,6 +273,8 @@ pub struct ModelStats {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LogFilters {
+    pub scheduled_only: Option<bool>,
+    pub scheduled_account_id: Option<String>,
     pub app_type: Option<String>,
     pub provider_name: Option<String>,
     pub model: Option<String>,
@@ -668,12 +670,14 @@ fn connection_total_changes(conn: &Connection) -> Result<u64, AppError> {
 
 fn log_count_cache_key(filters: &LogFilters) -> String {
     format!(
-        "{:?}|{:?}|{:?}|{:?}|{:?}",
+        "{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}",
         filters.app_type,
         filters.provider_name,
         filters.model,
         filters.status_code,
-        filters.start_date
+        filters.start_date,
+        filters.scheduled_only,
+        filters.scheduled_account_id
     )
 }
 
@@ -2156,6 +2160,16 @@ impl Database {
             filters.end_date,
         )?];
         let mut params: Vec<Box<dyn rusqlite::ToSql>> = Vec::new();
+
+        if filters.scheduled_only == Some(true) || filters.scheduled_account_id.is_some() {
+            conditions.push("l.request_id GLOB 'scheduled:*'".to_string());
+        }
+        if let Some(ref account_id) = filters.scheduled_account_id {
+            // A scheduled request ID is its session ID followed by ':' and the
+            // exact account ID. Avoid name matching and LIKE wildcard semantics.
+            conditions.push("l.request_id = l.session_id || ':' || ?".to_string());
+            params.push(Box::new(account_id.clone()));
+        }
 
         if let Some(ref app_type) = filters.app_type {
             // 仅过滤口径折叠 claude-desktop→claude；行投影仍返回原始 app_type，

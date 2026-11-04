@@ -18,6 +18,14 @@ pub async fn fetch_models_with_token(
     token: &str,
     account_id: &str,
 ) -> Result<Vec<FetchedModel>, String> {
+    Ok(parse_models(fetch_catalog_with_token(token, account_id).await?))
+}
+
+/// 保留模型能力元数据，供定时请求选择模型支持的最低推理档位。
+pub(crate) async fn fetch_catalog_with_token(
+    token: &str,
+    account_id: &str,
+) -> Result<Value, String> {
     let client = crate::proxy::http_client::get();
     let response = build_models_request(&client, token, account_id)
         .send()
@@ -35,7 +43,7 @@ pub async fn fetch_models_with_token(
         .await
         .map_err(|e| format!("Failed to parse response: {e}"))?;
 
-    Ok(parse_models(value))
+    Ok(value)
 }
 
 fn build_models_request(
@@ -53,7 +61,7 @@ fn build_models_request(
         .timeout(Duration::from_secs(CODEX_OAUTH_FETCH_TIMEOUT_SECS))
 }
 
-fn parse_models(value: Value) -> Vec<FetchedModel> {
+pub(crate) fn parse_models(value: Value) -> Vec<FetchedModel> {
     let entries = value
         .get("data")
         .and_then(Value::as_array)

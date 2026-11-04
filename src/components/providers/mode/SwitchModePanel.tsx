@@ -62,6 +62,7 @@ type ListCallbacks = Pick<
   | "onDelete"
   | "onDuplicate"
   | "onConfigureUsage"
+  | "onConfigureScheduledRefresh"
   | "onOpenWebsite"
   | "onOpenTerminal"
   | "onCreate"

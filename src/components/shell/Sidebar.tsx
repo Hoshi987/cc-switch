@@ -67,7 +67,7 @@ interface SidebarProps {
 type DirectoryProps = SidebarProps & { collapsed: boolean };
 
 /**
- * 主导航（v7）：顶条 44 → 应用列表（唯一滚动的区域）→ 全局 6 项（贴底）→ 底栏「应用 · 设置」。
+ * 主导航（v7）：顶条 44 → 应用列表（唯一滚动的区域）→ 全局页（贴底）→ 底栏「应用 · 设置」。
  * 进入设置后整条侧栏换成设置目录。收起时是 72px 的图标轨；
  * 展开 / 收起时宽度一步到位，边缘的滑动由盖板的 transform 动画画出（见 useSidebarCollapsed），文字不换行、被裁掉而不是挤成两行。
  * 收起时各行只剩图标，名字由 HoverTip 从右侧报；展开时文字可见，不再挂提示。
@@ -232,7 +232,7 @@ function MainDirectory({
   const apps = orderAppIds(settings?.appOrder).filter(
     (app) => visibleApps[app],
   );
-  const onAppPage = isAppPage(view);
+  const onAppPage = isAppPage(view) || view === "scheduledTasks";
 
   // 选了的项里是 0 的不写（没配定价时金额总是 0）；命中率在今天还没有请求时不写；
   // 全都没有就整个不显示。两项都有时只写数、上下两行（「今日」放进悬停和读屏）：

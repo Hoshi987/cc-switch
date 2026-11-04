@@ -64,6 +64,7 @@ interface ProviderCardProps {
   onEdit: (provider: Provider) => void;
   onDelete: (provider: Provider) => void;
   onConfigureUsage: (provider: Provider) => void;
+  onConfigureScheduledRefresh?: (provider: Provider) => void;
   onOpenWebsite: (url: string) => void;
   onDuplicate?: (provider: Provider) => void;
   onTest?: (provider: Provider) => void;
@@ -188,6 +189,7 @@ export function ProviderCard({
   onEdit,
   onDelete,
   onConfigureUsage,
+  onConfigureScheduledRefresh,
   onOpenWebsite,
   onDuplicate,
   onTest,
@@ -655,6 +657,11 @@ export function ProviderCard({
             onOpenTerminal={
               onOpenTerminal && terminalAvailable(provider, appId, isCurrent)
                 ? () => onOpenTerminal(provider)
+                : undefined
+            }
+            onConfigureScheduledRefresh={
+              managedCodexAccountId && onConfigureScheduledRefresh
+                ? () => onConfigureScheduledRefresh(provider)
                 : undefined
             }
             openTerminalIsolated={terminalIsIsolated(provider, appId)}

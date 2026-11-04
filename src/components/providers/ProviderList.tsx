@@ -87,6 +87,7 @@ interface ProviderListProps {
   onDisableOmoSlim?: () => void;
   onDuplicate: (provider: Provider) => void;
   onConfigureUsage?: (provider: Provider) => void;
+  onConfigureScheduledRefresh?: (provider: Provider) => void;
   onOpenWebsite: (url: string) => void;
   onOpenTerminal?: (provider: Provider) => void;
   onCreate?: () => void;
@@ -117,6 +118,7 @@ export function ProviderList({
   onDisableOmoSlim,
   onDuplicate,
   onConfigureUsage,
+  onConfigureScheduledRefresh,
   onOpenWebsite,
   onOpenTerminal,
   onCreate,
@@ -554,6 +556,7 @@ export function ProviderList({
       onConfigureUsage={
         onConfigureUsage ? (item) => onConfigureUsage(item) : () => undefined
       }
+      onConfigureScheduledRefresh={onConfigureScheduledRefresh}
       onOpenWebsite={onOpenWebsite}
       // Antigravity 的「打开终端」已经是主按钮，「更多」菜单里不再重复
       onOpenTerminal={appId === "agy" ? undefined : onOpenTerminal}
@@ -718,6 +721,7 @@ interface SortableProviderCardProps {
   onDelete: (provider: Provider) => void;
   onDuplicate: (provider: Provider) => void;
   onConfigureUsage: (provider: Provider) => void;
+  onConfigureScheduledRefresh?: (provider: Provider) => void;
   onOpenWebsite: (url: string) => void;
   onOpenTerminal?: (provider: Provider) => void;
   onTest?: (provider: Provider) => void;

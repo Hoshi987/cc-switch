@@ -73,6 +73,7 @@ interface ProviderCardActionsProps {
   onTest?: () => void;
   isTesting?: boolean;
   onConfigureUsage?: () => void;
+  onConfigureScheduledRefresh?: () => void;
   onOpenTerminal?: () => void;
   /** 这张卡打开的终端是否与 CC Switch 的切换隔离（见 terminalIsIsolated），决定提示里带不带「环境隔离」 */
   openTerminalIsolated?: boolean;
@@ -81,7 +82,7 @@ interface ProviderCardActionsProps {
 /**
  * 卡片右侧（v7）：主操作位（状态文字或按钮）→ 上移 / 下移（故障转移队列）→ 打开终端（Claude Code）
  * → 编辑 → ⋯。次要操作都在 ⋯ 里：跟当前模式有关的（聚合页、OpenClaw / OpenCode 的「设为默认」）在
- * 最前，然后是复制、检测连通、配置用量查询、删除。
+ * 最前，然后是复制、检测连通、配置用量查询、定时刷新、删除。
  * 按钮一律纯图标 + HoverTip；有禁用原因时改由 DisabledReason 的说明卡报原因。
  */
 export function ProviderCardActions({
@@ -93,6 +94,7 @@ export function ProviderCardActions({
   onTest,
   isTesting,
   onConfigureUsage,
+  onConfigureScheduledRefresh,
   onOpenTerminal,
   openTerminalIsolated,
 }: ProviderCardActionsProps) {
@@ -223,9 +225,15 @@ export function ProviderCardActions({
               {t("provider.configureUsage")}
             </DropdownMenuItem>
           )}
-          {(onDuplicate || onTest || onConfigureUsage) && (
-            <DropdownMenuSeparator />
+          {onConfigureScheduledRefresh && (
+            <DropdownMenuItem onSelect={onConfigureScheduledRefresh}>
+              {t("scheduledTasks.title")}
+            </DropdownMenuItem>
           )}
+          {(onDuplicate ||
+            onTest ||
+            onConfigureUsage ||
+            onConfigureScheduledRefresh) && <DropdownMenuSeparator />}
           <DropdownMenuItem
             disabled={Boolean(presentation.deleteDisabledReason)}
             onSelect={onDelete}

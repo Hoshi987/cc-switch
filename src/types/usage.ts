@@ -155,6 +155,8 @@ export interface ModelStats {
 }
 
 export interface LogFilters {
+  scheduledOnly?: boolean;
+  scheduledAccountId?: string;
   appType?: string;
   providerName?: string;
   model?: string;

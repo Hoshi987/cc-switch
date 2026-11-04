@@ -1303,6 +1303,9 @@ pub fn run() {
                 app.handle().clone(),
             );
             // 将同一个实例注入到全局状态，避免重复创建导致的不一致
+            app.manage(Arc::new(services::scheduled_tasks::ScheduledTaskService::new(
+                app_state.clone(),
+            )));
             app.manage(app_state);
             app.manage(services::kimi_oauth::KimiOAuthManager::default());
 
@@ -1426,6 +1429,11 @@ pub fn run() {
                 }
                 // 启动流程走完：托盘这时才开始报「路由服务没在运行」，并记下退回直连的应用。
                 crate::tray::mark_startup_settled(&app_handle);
+                app_handle
+                    .state::<Arc<services::scheduled_tasks::ScheduledTaskService>>()
+                    .inner()
+                    .clone()
+                    .start(app_handle.clone());
                 // Codex 官方做路由、发布了 Stack 模型时，官方模型列表过期就在后台刷新。
                 crate::services::provider::codex_official_models::start_background_checks(
                     state.inner().clone(),
@@ -1649,6 +1657,12 @@ pub fn run() {
             commands::get_subscription_quota,
             commands::get_codex_oauth_quota,
             commands::get_codex_oauth_models,
+            commands::get_scheduled_tasks,
+            commands::save_scheduled_task,
+            commands::set_scheduled_task_enabled,
+            commands::delete_scheduled_task,
+            commands::refresh_scheduled_task_models,
+            commands::run_scheduled_task,
             commands::get_xai_oauth_models,
             commands::get_xai_oauth_quota,
             commands::get_coding_plan_quota,
